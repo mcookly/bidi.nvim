@@ -54,6 +54,33 @@ function M.fribidi(lines, base_dir, args)
     )
 end
 
+-- Enable Bidi-Mode for current buffer
+-- @string base_dir The base direction
+function M.buf_enable_bidi(base_dir)
+  local bufnr = vim.api.nvim_win_get_buf(0)
+  if M.active_bufs[tostring(bufnr)] == nil then
+    local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    buf_lines = M.fribidi(buf_lines, base_dir, {})
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
+    M.active_bufs[tostring(bufnr)] = base_dir
+  else
+    notify('ERROR', 'Bidi-Mode already enabled.')
+  end
+end
+
+-- Disable Bidi-Mode for current buffer
+function M.buf_disable_bidi()
+  local bufnr = vim.api.nvim_win_get_buf(0)
+  if M.active_bufs[tostring(bufnr)] ~= nil then
+    local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    buf_lines = M.fribidi(buf_lines, 'mixed', {})
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
+    M.active_bufs[tostring(bufnr)] = nil
+  else
+    notify('ERROR', 'Bidi-Mode already disabled.')
+  end
+end
+
 -- Initialize plugin
 function M.setup(opts)
   M.options = vim.tbl_deep_extend('force', default_opts, opts or {})
