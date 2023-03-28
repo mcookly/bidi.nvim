@@ -16,6 +16,44 @@ local function notify(level, msg)
 end
 -- <<< Helper Functions <<<
 
+-- GNU FriBidi pipe
+-- @tparam table Lines to run through FriBidi
+-- @string base_dir Base Direction for bidi'd content
+-- @tparam table args Extra arguments passed to fribidi
+-- @treturn table Lines run through FriBidi
+function M.fribidi(lines, base_dir, args)
+  -- Sanitize incoming lines
+  lines = vim.tbl_map(function(line) return line:gsub([[']], [['\'']]) end, lines)
+
+  -- Append `\n` to the end of lines
+  lines = table.concat(lines, [[\n]])
+
+  -- Format args
+  local fmt_args = table.concat(args, ' --')
+
+  -- Format base_dir
+  local fmt_base_dir = ''
+  if base_dir:match('mixed') then
+    fmt_base_dir = 'wltr'
+  elseif base_dir:match('ltr') then
+    fmt_base_dir = 'ltr'
+  elseif base_dir:match('rtl') then
+    fmt_base_dir = 'rtl'
+  else
+    notify('ERROR', base_dir)
+  end
+
+  -- Return content run through FriBidi
+  -- stylua: ignore
+  return vim.fn.systemlist(
+    [[echo ']]
+      .. lines
+      .. [[' | fribidi --nobreak]]
+      .. ' --' .. fmt_base_dir
+      .. ' --' .. fmt_args
+    )
+end
+
 -- Initialize plugin
 function M.setup(opts)
   M.options = vim.tbl_deep_extend('force', default_opts, opts or {})
