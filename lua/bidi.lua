@@ -41,6 +41,7 @@ function M.fribidi(lines, base_dir, args)
     fmt_base_dir = 'rtl'
   else
     notify('ERROR', base_dir)
+    return
   end
 
   -- Return content run through FriBidi
@@ -65,6 +66,7 @@ function M.buf_enable_bidi(base_dir)
     M.active_bufs[tostring(bufnr)] = base_dir
   else
     notify('ERROR', 'Bidi-Mode already enabled.')
+    return
   end
 end
 
@@ -78,6 +80,7 @@ function M.buf_disable_bidi()
     M.active_bufs[tostring(bufnr)] = nil
   else
     notify('ERROR', 'Bidi-Mode already disabled.')
+    return
   end
 end
 
