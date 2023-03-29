@@ -6,7 +6,7 @@ M.active_bufs = {}
 -- Default plugin options
 local default_opts = {
   create_user_commands = true, -- Generate user commands to enable and disable bidi-mode
-  default_base_direction = 'mixed', -- Options: 'ltr', 'mixed', 'rtl'
+  default_base_direction = 'MX', -- Options: 'LR', 'RL', 'MX' (choose based on strong char)
   -- intuitive_delete = true, -- Swap <DEL> and <BS>
 }
 
@@ -33,11 +33,11 @@ function M.fribidi(lines, base_dir, args)
 
   -- Format base_dir
   local fmt_base_dir = ''
-  if base_dir:match('mixed') then
+  if base_dir:match('MX') then
     fmt_base_dir = 'wltr'
-  elseif base_dir:match('ltr') then
+  elseif base_dir:match('LR') then
     fmt_base_dir = 'ltr'
-  elseif base_dir:match('rtl') then
+  elseif base_dir:match('RL') then
     fmt_base_dir = 'rtl'
   else
     notify('ERROR', base_dir)
@@ -73,12 +73,20 @@ function M.buf_disable_bidi()
   local bufnr = vim.api.nvim_win_get_buf(0)
   if M.active_bufs[tostring(bufnr)] ~= nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    buf_lines = M.fribidi(buf_lines, 'mixed', {})
+    buf_lines = M.fribidi(buf_lines, 'MX', {})
     vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
     M.active_bufs[tostring(bufnr)] = nil
   else
     notify('ERROR', 'Bidi-Mode already disabled.')
   end
+end
+
+-- Get Bidi-Mode status for buffer via <bufnr>
+-- @param int The buffer number 
+-- NOTE: This is currently a function
+--       in case I implement more procedures down the road.
+function M.buf_get_bidi_mode(bufnr)
+  return M.active_bufs[tostring(bufnr)] or ''
 end
 
 -- Initialize plugin
@@ -89,11 +97,11 @@ function M.setup(opts)
   if M.options.create_user_commands then
     -- Enable Bidi-Mode
     vim.api.nvim_create_user_command('BidiEnable', function()
-      M.buf_enable_bidi('mixed') end, {})
+      M.buf_enable_bidi('MX') end, {})
 
     -- Disable Bidi-Mode
     vim.api.nvim_create_user_command('BidiDisable', function()
-      M.buf_disable_bidi('mixed') end, {})
+      M.buf_disable_bidi('MX') end, {})
   end
 end
 
