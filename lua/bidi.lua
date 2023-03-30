@@ -6,7 +6,7 @@ M.active_bufs = {}
 -- Default plugin options
 local default_opts = {
   create_user_commands = true, -- Generate user commands to enable and disable bidi-mode
-  default_base_direction = 'MX', -- Options: 'LR', 'RL', 'MX' (choose based on strong char)
+  default_base_direction = 'ML', -- Options: 'LR', 'RL', 'ML', and 'MR'
   -- intuitive_delete = true, -- Swap <DEL> and <BS>
 }
 
@@ -33,8 +33,10 @@ function M.fribidi(lines, base_dir, args)
 
   -- Format base_dir
   local fmt_base_dir = ''
-  if base_dir:match('MX') then
+  if base_dir:match('ML') then
     fmt_base_dir = 'wltr'
+  elseif base_dir:match('MR') then
+    fmt_base_dir = 'wrtl'
   elseif base_dir:match('LR') then
     fmt_base_dir = 'ltr'
   elseif base_dir:match('RL') then
@@ -73,9 +75,10 @@ end
 -- Disable Bidi-Mode for current buffer
 function M.buf_disable_bidi()
   local bufnr = vim.api.nvim_win_get_buf(0)
-  if M.active_bufs[tostring(bufnr)] ~= nil then
+  local buf_bidi_state = M.active_bufs[tostring(bufnr)]
+  if buf_bidi_state ~= nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    buf_lines = M.fribidi(buf_lines, 'MX', {})
+    buf_lines = M.fribidi(buf_lines, buf_bidi_state, {})
     vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
     M.active_bufs[tostring(bufnr)] = nil
   else
@@ -100,11 +103,11 @@ function M.setup(opts)
   if M.options.create_user_commands then
     -- Enable Bidi-Mode
     vim.api.nvim_create_user_command('BidiEnable', function()
-      M.buf_enable_bidi('MX') end, {})
+      M.buf_enable_bidi('ML') end, {})
 
     -- Disable Bidi-Mode
     vim.api.nvim_create_user_command('BidiDisable', function()
-      M.buf_disable_bidi('MX') end, {})
+      M.buf_disable_bidi() end, {})
   end
 end
 

@@ -38,13 +38,14 @@ in the meantime.**
 Use `:BidiEnable<cr>` to enable `Bidi-Mode` 
 and `:BidiDisable<cr>` to disable `Bidi-Mode`.
 **Note: I have yet to add the ability to choose a base direction.
-Currently, these commands default to `MX` base direction.**
+Currently, these commands default to `ML` base direction.**
 
 ### Statusline Indicator
 
 I highly recommend adding this to your statusline
 so that you know when `Bidi-Mode` is enabled and in what base direction.
-It will display `LR` (LTR), `RL` (RTL), or `MX` (mixed/auto) depending on the base direction.
+It will display `LR` (LTR), `RL` (RTL), `ML` (weak LTR), or `MR` (weak RTL)
+depending on the base direction you choose.
 Add the following to your statusline:
 
 ```vim
