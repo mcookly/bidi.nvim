@@ -12,7 +12,10 @@ local default_opts = {
 
 -- >>> Helper Functions >>>
 local function notify(level, msg)
-  vim.notify(string.format([[BiDi (%s): %s]], level, msg), vim.log.levels[level])
+  vim.notify(
+    string.format([[BiDi (%s): %s]], level, msg),
+    vim.log.levels[level]
+  )
 end
 -- <<< Helper Functions <<<
 
@@ -23,7 +26,9 @@ end
 -- @treturn table Lines run through FriBidi
 function M.fribidi(lines, base_dir, args)
   -- Sanitize incoming lines
-  lines = vim.tbl_map(function(line) return line:gsub([[']], [['\'']]) end, lines)
+  lines = vim.tbl_map(function(line)
+    return line:gsub([[']], [['\'']])
+  end, lines)
 
   -- Append `\n` to the end of lines
   lines = table.concat(lines, [[\n]])
@@ -33,13 +38,13 @@ function M.fribidi(lines, base_dir, args)
 
   -- Format base_dir
   local fmt_base_dir = ''
-  if base_dir:match('ML') then
+  if base_dir:upper():match('ML') then
     fmt_base_dir = 'wltr'
-  elseif base_dir:match('MR') then
+  elseif base_dir:upper():match('MR') then
     fmt_base_dir = 'wrtl'
-  elseif base_dir:match('LR') then
+  elseif base_dir:upper():match('LR') then
     fmt_base_dir = 'ltr'
-  elseif base_dir:match('RL') then
+  elseif base_dir:upper():match('RL') then
     fmt_base_dir = 'rtl'
   else
     notify('ERROR', base_dir)
@@ -65,7 +70,7 @@ function M.buf_enable_bidi(base_dir)
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     buf_lines = M.fribidi(buf_lines, base_dir, {})
     vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
-    M.active_bufs[tostring(bufnr)] = base_dir
+    M.active_bufs[tostring(bufnr)] = base_dir:upper()
   else
     notify('ERROR', 'Bidi-Mode already enabled.')
     return
@@ -88,7 +93,7 @@ function M.buf_disable_bidi()
 end
 
 -- Get Bidi-Mode status for buffer via <bufnr>
--- @param int The buffer number 
+-- @param int The buffer number
 -- NOTE: This is currently a function
 --       in case I implement more procedures down the road.
 function M.buf_get_bidi_mode(bufnr)
@@ -102,12 +107,15 @@ function M.setup(opts)
   -- Generate user commands
   if M.options.create_user_commands then
     -- Enable Bidi-Mode
-    vim.api.nvim_create_user_command('BidiEnable', function()
-      M.buf_enable_bidi('ML') end, {})
+    vim.api.nvim_create_user_command('BidiEnable', function(opts)
+      local base_dir = opts.fargs[1] or M.options.default_base_direction
+      M.buf_enable_bidi(base_dir)
+    end, { nargs = '?' })
 
     -- Disable Bidi-Mode
     vim.api.nvim_create_user_command('BidiDisable', function()
-      M.buf_disable_bidi() end, {})
+      M.buf_disable_bidi()
+    end, {})
   end
 end
 

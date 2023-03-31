@@ -35,10 +35,21 @@ in the meantime.**
 
 ### Toggle `Bidi-Mode`
 
-Use `:BidiEnable<cr>` to enable `Bidi-Mode` 
-and `:BidiDisable<cr>` to disable `Bidi-Mode`.
-**Note: I have yet to add the ability to choose a base direction.
-Currently, these commands default to `ML` base direction.**
+Use `:BidiEnable <base direction>` to enable `Bidi-Mode`.
+The base direction is case insensitive.
+
+```vim
+" Example: Enable RTL Bidi-Mode
+:BidiEnable RL
+
+" Or
+:BidiEnable rl
+```
+
+If no base direction is supplied (`:BidiEnable`),
+Bidi-Mode will activate using the default base direction.
+
+Use `:BidiDisable` to disable `Bidi-Mode`.
 
 ### Statusline Indicator
 
@@ -67,8 +78,8 @@ more or less in the order I plan to add functionality.
 - [x] GNU FriBidi piping ([0c5861a](https://github.com/mcookly/bidi.nvim/commit/0c5861ace3e6e807c5ce8300f63572d50318c154))
 - [x] `Bidi-Mode` toggleability ([331de66](https://github.com/mcookly/bidi.nvim/commit/331de66c19937c85c7f704b5f7e836a4d356d0ca))
 - [x] `Bidi-Mode` statusline option ([dcba4df](https://github.com/mcookly/bidi.nvim/commit/dcba4dfb430d04da0140cef4ccd391eab1e8c057))
+- [x] Manually choose base direction
 - [ ] Save files only in logical mode
-- [ ] Manually choose base direction
 - [ ] Switch to `revins` automatically
 - [ ] Paste in properly in `Bidi-Mode`
 - [ ] Dynamic padding for RTL paragraphs
