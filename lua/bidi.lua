@@ -62,14 +62,16 @@ function M.fribidi(lines, base_dir, args)
     )
 end
 
--- Enable Bidi-Mode for current buffer
+-- Enable Bidi-Mode for buffer of id <bufnr>
 -- @string base_dir The base direction
-function M.buf_enable_bidi(base_dir)
-  local bufnr = vim.api.nvim_win_get_buf(0)
+function M.buf_enable_bidi(bufnr, base_dir)
+  if bufnr == 0 then
+    bufnr = vim.api.nvim_win_get_buf(0)
+  end
   if M.active_bufs[tostring(bufnr)] == nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     buf_lines = M.fribidi(buf_lines, base_dir, {})
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
     M.active_bufs[tostring(bufnr)] = base_dir:upper()
   else
     notify('ERROR', 'Bidi-Mode already enabled.')
@@ -77,14 +79,16 @@ function M.buf_enable_bidi(base_dir)
   end
 end
 
--- Disable Bidi-Mode for current buffer
-function M.buf_disable_bidi()
-  local bufnr = vim.api.nvim_win_get_buf(0)
+-- Disable Bidi-Mode for buffer of id <bufnr>
+function M.buf_disable_bidi(bufnr)
+  if bufnr == 0 then
+    bufnr = vim.api.nvim_win_get_buf(0)
+  end
   local buf_bidi_state = M.active_bufs[tostring(bufnr)]
   if buf_bidi_state ~= nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     buf_lines = M.fribidi(buf_lines, buf_bidi_state, {})
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_lines)
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
     M.active_bufs[tostring(bufnr)] = nil
   else
     notify('ERROR', 'Bidi-Mode already disabled.')
@@ -106,16 +110,16 @@ function M.setup(opts)
 
   -- Generate user commands
   if M.options.create_user_commands then
-    -- Enable Bidi-Mode
+    -- Enable Bidi-Mode in current buffer
     vim.api.nvim_create_user_command('BidiEnable', function(opts)
       local base_dir = opts.fargs[1] or M.options.default_base_direction
-      M.buf_enable_bidi(base_dir)
     end, { nargs = '?' })
+      M.buf_enable_bidi(0, base_dir)
 
-    -- Disable Bidi-Mode
+    -- Disable Bidi-Mode in current buffer
     vim.api.nvim_create_user_command('BidiDisable', function()
-      M.buf_disable_bidi()
     end, {})
+      M.buf_disable_bidi(0)
   end
 end
 
