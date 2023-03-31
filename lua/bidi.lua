@@ -108,22 +108,36 @@ end
 function M.setup(opts)
   M.options = vim.tbl_deep_extend('force', default_opts, opts or {})
 
+  -- Create autocommands
+  M.augroup = vim.api.nvim_create_augroup('Bidi', { clear = true })
+
+  -- Temporarily disable Bidi-Mode when writing buffer contents
+  vim.api.nvim_create_autocmd({ 'BufWritePre', 'BufWritePost' }, {
+    callback = function(opts)
+      local buf_base_dir = M.active_bufs[tostring(opts.buf)]
+      if buf_base_dir ~= nil then
+        M.buf_disable_bidi(opts.buf)
+        M.active_bufs[tostring(opts.buf)] = 'w-' .. buf_base_dir
+      else
+        M.buf_enable_bidi(opts.buf, M.active_bufs[tostring(opts.buf)]:sub(3))
+      end
+    end,
+    group = M.augroup,
+    desc = 'Temporarily disable Bidi-Mode when writing buffer contents',
+  })
+
   -- Generate user commands
   if M.options.create_user_commands then
     -- Enable Bidi-Mode in current buffer
     vim.api.nvim_create_user_command('BidiEnable', function(opts)
       local base_dir = opts.fargs[1] or M.options.default_base_direction
       M.buf_enable_bidi(0, base_dir)
-    end,
-    { nargs = '?', desc = 'Enable Bidi-Mode in the current buffer' }
-    )
+    end, { nargs = '?', desc = 'Enable Bidi-Mode in the current buffer' })
 
     -- Disable Bidi-Mode in current buffer
     vim.api.nvim_create_user_command('BidiDisable', function()
       M.buf_disable_bidi(0)
-    end,
-    { desc = 'Disable Bidi-Mode in the current buffer' }
-    )
+    end, { desc = 'Disable Bidi-Mode in the current buffer' })
   end
 end
 

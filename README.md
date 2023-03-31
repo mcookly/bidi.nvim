@@ -11,7 +11,7 @@ on a per-buffer basis.
 I recommend using [`rosetta.nvim`](https://github.com/mcookly/rosetta.nvim)
 in the meantime.**
 
-## Depedencies
+## Dependencies
 
 ### Required
 
@@ -79,7 +79,7 @@ more or less in the order I plan to add functionality.
 - [x] `Bidi-Mode` toggleability ([331de66](https://github.com/mcookly/bidi.nvim/commit/331de66c19937c85c7f704b5f7e836a4d356d0ca))
 - [x] `Bidi-Mode` statusline option ([dcba4df](https://github.com/mcookly/bidi.nvim/commit/dcba4dfb430d04da0140cef4ccd391eab1e8c057))
 - [x] Manually choose base direction
-- [ ] Save files only in logical mode
+- [x] Save files only in logical mode
 - [ ] Switch to `revins` automatically
 - [ ] Paste in properly in `Bidi-Mode`
 - [ ] Dynamic padding for RTL paragraphs
