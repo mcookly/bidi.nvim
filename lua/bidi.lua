@@ -113,13 +113,17 @@ function M.setup(opts)
     -- Enable Bidi-Mode in current buffer
     vim.api.nvim_create_user_command('BidiEnable', function(opts)
       local base_dir = opts.fargs[1] or M.options.default_base_direction
-    end, { nargs = '?' })
       M.buf_enable_bidi(0, base_dir)
+    end,
+    { nargs = '?', desc = 'Enable Bidi-Mode in the current buffer' }
+    )
 
     -- Disable Bidi-Mode in current buffer
     vim.api.nvim_create_user_command('BidiDisable', function()
-    end, {})
       M.buf_disable_bidi(0)
+    end,
+    { desc = 'Disable Bidi-Mode in the current buffer' }
+    )
   end
 end
 
