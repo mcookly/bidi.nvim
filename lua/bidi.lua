@@ -1,5 +1,17 @@
 local M = {}
 
+local rtl_keymaps = {
+  'arabic_utf-8',
+  'arabic',
+  'hebrew_cp1255',
+  'hebrew_iso-8859-7',
+  'hebrew_utf-8',
+  'hebrew',
+  'persian-iranian_utf-8',
+  'persian',
+  'thaana',
+}
+
 -- Handler for buffers with bidi mode enabled
 M.active_bufs = {}
 
@@ -106,6 +118,10 @@ end
 
 -- Initialize plugin
 function M.setup(opts)
+  -- Set options
+  vim.o.allowrevins = true
+
+  -- Set user options
   M.options = vim.tbl_deep_extend('force', default_opts, opts or {})
 
   -- Create autocommands
@@ -124,6 +140,25 @@ function M.setup(opts)
     end,
     group = M.augroup,
     desc = 'Temporarily disable Bidi-Mode when writing buffer contents',
+  })
+
+  -- Automatically enter `revins` depending on language and `rightleft`
+  -- For `rightleft` buffers, LTR languages are `revins`.
+  -- For `norightleft` buffers, RTL languages are `revins`.
+  vim.api.nvim_create_autocmd('OptionSet', {
+    callback = function(opts)
+      local buf_base_dir = M.active_bufs[tostring(opts.buf)]
+      if vim.tbl_contains(rtl_keymaps, vim.v.option_new) then
+        -- NOTE: `revins` is a global option,
+        -- so if a local option is wanted,
+        -- might need to use `InsertCharPre` and check the buffer.
+        vim.o.revins = true
+      else
+        vim.o.revins = false
+      end
+    end,
+    group = M.augroup,
+    desc = 'Automatically enter `revins` depending on language and `rightleft`',
   })
 
   -- Generate user commands
