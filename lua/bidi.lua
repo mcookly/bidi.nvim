@@ -19,7 +19,7 @@ M.active_bufs = {}
 local default_opts = {
   create_user_commands = true, -- Generate user commands to enable and disable bidi-mode
   default_base_direction = 'ML', -- Options: 'LR', 'RL', 'ML', and 'MR'
-  -- intuitive_delete = true, -- Swap <DEL> and <BS>
+  intuitive_delete = true, -- Swap <DEL> and <BS> when using a keymap contra base direction
 }
 
 -- >>> Helper Functions >>>
@@ -153,8 +153,28 @@ function M.setup(opts)
         -- so if a local option is wanted,
         -- might need to use `InsertCharPre` and check the buffer.
         vim.o.revins = true
+
+        if M.options.intuitive_delete then
+          vim.keymap.set(
+            'i',
+            '<bs>',
+            '<del>',
+            { buffer = opts.buf, silent = true }
+          )
+          vim.keymap.set(
+            'i',
+            '<del>',
+            '<bs>',
+            { buffer = opts.buf, silent = true }
+          )
+        end
       else
         vim.o.revins = false
+
+        if M.options.intuitive_delete then
+          vim.keymap.del('i', '<bs>', { buffer = opts.buf })
+          vim.keymap.del('i', '<del>', { buffer = opts.buf })
+        end
       end
     end,
     group = M.augroup,
