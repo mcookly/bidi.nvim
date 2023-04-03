@@ -84,7 +84,12 @@ function M.buf_enable_bidi(bufnr, base_dir)
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     buf_lines = M.fribidi(buf_lines, base_dir, {})
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
-    M.active_bufs[tostring(bufnr)] = base_dir:upper()
+
+    -- Add Bidi-Mode status to buffer handler
+    local buf_status = {
+      base_dir = base_dir:upper(),
+    }
+    M.active_bufs[tostring(bufnr)] = buf_status
   else
     notify('ERROR', 'Bidi-Mode already enabled.')
     return
@@ -99,7 +104,7 @@ function M.buf_disable_bidi(bufnr)
   local buf_bidi_state = M.active_bufs[tostring(bufnr)]
   if buf_bidi_state ~= nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    buf_lines = M.fribidi(buf_lines, buf_bidi_state, {})
+    buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {})
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
     M.active_bufs[tostring(bufnr)] = nil
   else
@@ -113,7 +118,11 @@ end
 -- NOTE: This is currently a function
 --       in case I implement more procedures down the road.
 function M.buf_get_bidi_mode(bufnr)
-  return M.active_bufs[tostring(bufnr)] or ''
+  if M.active_bufs[tostring(bufnr)] ~= nil then
+    return M.active_bufs[tostring(bufnr)].base_dir
+  else
+    return ''
+  end
 end
 
 -- Initialize plugin
@@ -130,12 +139,12 @@ function M.setup(opts)
   -- Temporarily disable Bidi-Mode when writing buffer contents
   vim.api.nvim_create_autocmd({ 'BufWritePre', 'BufWritePost' }, {
     callback = function(opts)
-      local buf_base_dir = M.active_bufs[tostring(opts.buf)]
-      if buf_base_dir ~= nil then
+      local buf = M.active_bufs[tostring(opts.buf)]
+      if buf.base_dir ~= nil then
         M.buf_disable_bidi(opts.buf)
-        M.active_bufs[tostring(opts.buf)] = 'w-' .. buf_base_dir
+        M.active_bufs[tostring(opts.buf)].base_dir = 'w-' .. buf_base_dir
       else
-        M.buf_enable_bidi(opts.buf, M.active_bufs[tostring(opts.buf)]:sub(3))
+        M.buf_enable_bidi(opts.buf, M.active_bufs[tostring(opts.buf)].base_dir:sub(3))
       end
     end,
     group = M.augroup,
@@ -147,7 +156,6 @@ function M.setup(opts)
   -- For `norightleft` buffers, RTL languages are `revins`.
   vim.api.nvim_create_autocmd('OptionSet', {
     callback = function(opts)
-      local buf_base_dir = M.active_bufs[tostring(opts.buf)]
       if vim.tbl_contains(rtl_keymaps, vim.v.option_new) then
         -- NOTE: `revins` is a global option,
         -- so if a local option is wanted,
