@@ -88,7 +88,9 @@ function M.buf_enable_bidi(bufnr, base_dir)
     -- Add Bidi-Mode status to buffer handler
     local buf_status = {
       base_dir = base_dir:upper(),
+      intuitive_delete = false,
       usercmds = {},
+      autocmds = {},
     }
 
     -- User Commands
@@ -103,6 +105,67 @@ function M.buf_enable_bidi(bufnr, base_dir)
         { desc = 'Disable Bidi-Mode in the current buffer' }
       )
     end
+
+    -- Auto commands
+    -- Temporarily disable Bidi-Mode before writing buffer contents
+    buf_status.autocmds.disable_bidi_pre_write = vim.api.nvim_create_autocmd('BufWritePre', {
+      buffer = bufnr,
+      callback = function()
+        M.buf_disable_bidi(bufnr)
+      end,
+      group = M.augroup,
+      desc = 'Disable Bidi-Mode before writing buffer contents',
+    })
+
+    -- Re-enable Bidi-Mode after writing buffer contents
+    buf_status.autocmds.enable_bidi_post_write = vim.api.nvim_create_autocmd('BufWritePost', {
+      buffer = bufnr,
+      callback = function()
+        M.buf_enable_bidi(bufnr, base_dir)
+      end,
+      group = M.augroup,
+      desc = 'Enable Bidi-Mode before writing buffer contents',
+    })
+
+    -- Automatically enter `revins` depending on language and `rightleft`
+    -- For `rightleft` buffers, LTR languages are `revins`.
+    -- For `norightleft` buffers, RTL languages are `revins`.
+    buf_status.autocmds.revins = vim.api.nvim_create_autocmd('InsertEnter', {
+      buffer = bufnr,
+      callback = function()
+        if vim.tbl_contains(rtl_keymaps, vim.bo.keymap) then
+          -- NOTE: `revins` is a global option,
+          -- so if a local option is wanted,
+          -- might need to use `InsertCharPre` and check the buffer.
+          vim.o.revins = true
+
+          if M.options.intuitive_delete and not buf_status.intuitive_delete then
+            vim.keymap.set(
+              'i',
+              '<bs>',
+              '<del>',
+              { buffer = bufnr, silent = true }
+            )
+            vim.keymap.set(
+              'i',
+              '<del>',
+              '<bs>',
+              { buffer = bufnr, silent = true }
+            )
+            buf_status.intuitive_delete = true
+          end
+        else
+          vim.o.revins = false
+
+          if M.options.intuitive_delete and buf_status.intuitive_delete then
+            vim.keymap.del('i', '<bs>', { buffer = bufnr })
+            vim.keymap.del('i', '<del>', { buffer = bufnr })
+          end
+        end
+      end,
+      group = M.augroup,
+      desc = 'Automatically enter `revins` depending on language and `rightleft`',
+    })
 
     M.active_bufs[tostring(bufnr)] = buf_status
   else
@@ -122,11 +185,15 @@ function M.buf_disable_bidi(bufnr)
     buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {})
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
 
-    -- Remove any generated usr/auto commands
+    -- Remove any generated user/auto commands
     if M.options.create_user_commands then
-      for usercmd, _ in pairs(buf_bidi_state.usercmds) do
+      for _, usercmd in ipairs(buf_bidi_state.usercmds) do
         vim.api.nvim_buf_del_user_command(bufnr, usercmd)
       end
+    end
+
+    for _, autocmd in ipairs(buf_bidi_state.autocmds) do
+      vim.api.nvim_del_autocmd(autocmd)
     end
 
     M.active_bufs[tostring(bufnr)] = nil
@@ -158,62 +225,6 @@ function M.setup(opts)
 
   -- Create autocommand group
   M.augroup = vim.api.nvim_create_augroup('Bidi', { clear = true })
-
-  -- Temporarily disable Bidi-Mode when writing buffer contents
-  vim.api.nvim_create_autocmd({ 'BufWritePre', 'BufWritePost' }, {
-    callback = function(opts)
-      local buf = M.active_bufs[tostring(opts.buf)]
-      if buf.base_dir ~= nil then
-        M.buf_disable_bidi(opts.buf)
-        M.active_bufs[tostring(opts.buf)].base_dir = 'w-' .. buf_base_dir
-      else
-        M.buf_enable_bidi(
-          opts.buf,
-          M.active_bufs[tostring(opts.buf)].base_dir:sub(3)
-        )
-      end
-    end,
-    group = M.augroup,
-    desc = 'Temporarily disable Bidi-Mode when writing buffer contents',
-  })
-
-  -- Automatically enter `revins` depending on language and `rightleft`
-  -- For `rightleft` buffers, LTR languages are `revins`.
-  -- For `norightleft` buffers, RTL languages are `revins`.
-  vim.api.nvim_create_autocmd('OptionSet', {
-    callback = function(opts)
-      if vim.tbl_contains(rtl_keymaps, vim.v.option_new) then
-        -- NOTE: `revins` is a global option,
-        -- so if a local option is wanted,
-        -- might need to use `InsertCharPre` and check the buffer.
-        vim.o.revins = true
-
-        if M.options.intuitive_delete then
-          vim.keymap.set(
-            'i',
-            '<bs>',
-            '<del>',
-            { buffer = opts.buf, silent = true }
-          )
-          vim.keymap.set(
-            'i',
-            '<del>',
-            '<bs>',
-            { buffer = opts.buf, silent = true }
-          )
-        end
-      else
-        vim.o.revins = false
-
-        if M.options.intuitive_delete then
-          vim.keymap.del('i', '<bs>', { buffer = opts.buf })
-          vim.keymap.del('i', '<del>', { buffer = opts.buf })
-        end
-      end
-    end,
-    group = M.augroup,
-    desc = 'Automatically enter `revins` depending on language and `rightleft`',
-  })
 
   -- Generate user commands
   if M.options.create_user_commands then
