@@ -96,7 +96,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
     -- User Commands
     if M.options.create_user_commands then
       -- Disable Bidi-Mode in current buffer
-      buf_status.usercmds['BidiDisable'] = vim.api.nvim_buf_create_user_command(
+      vim.api.nvim_buf_create_user_command(
         bufnr,
         'BidiDisable',
         function()
@@ -104,6 +104,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
         end,
         { desc = 'Disable Bidi-Mode in the current buffer' }
       )
+      table.insert(buf_status.usercmds, 'BidiDisable')
     end
 
     -- Auto commands
