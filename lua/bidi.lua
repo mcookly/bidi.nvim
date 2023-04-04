@@ -225,7 +225,7 @@ function M.setup(opts)
   M.options = vim.tbl_deep_extend('force', default_opts, opts or {})
 
   -- Create autocommand group
-  M.augroup = vim.api.nvim_create_augroup('Bidi', { clear = true })
+  M.augroup = vim.api.nvim_create_augroup('bidi.nvim', { clear = true })
 
   -- Generate user commands
   if M.options.create_user_commands then
