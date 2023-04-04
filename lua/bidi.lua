@@ -102,7 +102,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
         function()
           M.buf_disable_bidi(0)
         end,
-        { desc = 'Disable Bidi-Mode in the current buffer' }
+        { desc = 'Disable Bidi-Mode in buffer ' .. bufnr }
       )
       table.insert(buf_status.usercmds, 'BidiDisable')
     end
@@ -115,7 +115,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
         M.buf_disable_bidi(bufnr)
       end,
       group = M.augroup,
-      desc = 'Disable Bidi-Mode before writing buffer contents',
+      desc = 'Disable Bidi-Mode before writing contents of buffer ' .. bufnr,
     })
 
     -- Re-enable Bidi-Mode after writing buffer contents
@@ -125,7 +125,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
         M.buf_enable_bidi(bufnr, base_dir)
       end,
       group = M.augroup,
-      desc = 'Enable Bidi-Mode before writing buffer contents',
+      desc = 'Enable Bidi-Mode before writing contents of buffer ' .. bufnr,
     })
 
     -- Automatically enter `revins` depending on language and `rightleft`
