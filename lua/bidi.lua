@@ -35,8 +35,9 @@ end
 -- @tparam table Lines to run through FriBidi
 -- @string base_dir Base Direction for bidi'd content
 -- @tparam table args Extra arguments passed to fribidi
+-- @tparam str post Extra commands after fribidi
 -- @treturn table Lines run through FriBidi
-function M.fribidi(lines, base_dir, args)
+function M.fribidi(lines, base_dir, args, post)
   -- Sanitize incoming lines
   lines = vim.tbl_map(function(line)
     return line:gsub([[']], [['\'']])
@@ -67,6 +68,7 @@ function M.fribidi(lines, base_dir, args)
       .. [[' | fribidi --nobreak --nopad]]
       .. ' --' .. fmt_base_dir
       .. ' --' .. fmt_args
+      .. ' ' .. post
     )
 end
 
