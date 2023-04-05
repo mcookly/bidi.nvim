@@ -80,7 +80,14 @@ function M.buf_enable_bidi(bufnr, base_dir)
   end
   if M.active_bufs[tostring(bufnr)] == nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    buf_lines = M.fribidi(buf_lines, base_dir, {})
+    -- Switch to `rightleft` and flip buffer in RL mode
+    if base_dir:upper():match('RL') then
+      buf_lines = M.fribidi(buf_lines, base_dir, {}, '| rev')
+      vim.wo.rightleft = true
+    else
+      buf_lines = M.fribidi(buf_lines, base_dir, {})
+    end
+    -- Update buffer
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
 
     -- Add Bidi-Mode status to buffer handler
@@ -190,7 +197,14 @@ function M.buf_disable_bidi(bufnr)
   local buf_bidi_state = M.active_bufs[tostring(bufnr)]
   if buf_bidi_state ~= nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {})
+    -- Disable rightleft behavior
+    if buf_bidi_state.base_dir:match('RL') then
+      buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {}, '| rev')
+      vim.wo.rightleft = false
+    else
+      buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir)
+    end
+    -- Update buffer
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
 
     -- Remove any generated user/auto commands
