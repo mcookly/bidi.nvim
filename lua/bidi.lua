@@ -38,6 +38,8 @@ end
 -- @tparam str post Extra commands after fribidi
 -- @treturn table Lines run through FriBidi
 function M.fribidi(lines, base_dir, args, post)
+  local post = post or ''
+  local args = args or {}
   -- Sanitize incoming lines
   lines = vim.tbl_map(function(line)
     return line:gsub([[']], [['\'']])
@@ -80,6 +82,8 @@ function M.buf_enable_bidi(bufnr, base_dir)
   end
   if M.active_bufs[tostring(bufnr)] == nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+
     -- Switch to `rightleft` and flip buffer in RL mode
     if base_dir:upper():match('RL') then
       buf_lines = M.fribidi(buf_lines, base_dir, {}, '| rev')
@@ -87,6 +91,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
     else
       buf_lines = M.fribidi(buf_lines, base_dir, {})
     end
+
     -- Update buffer
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
 
@@ -197,6 +202,7 @@ function M.buf_disable_bidi(bufnr)
   local buf_bidi_state = M.active_bufs[tostring(bufnr)]
   if buf_bidi_state ~= nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
     -- Disable rightleft behavior
     if buf_bidi_state.base_dir:match('RL') then
       buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {}, '| rev')
@@ -204,6 +210,7 @@ function M.buf_disable_bidi(bufnr)
     else
       buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir)
     end
+
     -- Update buffer
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, buf_lines)
 
