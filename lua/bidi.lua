@@ -200,6 +200,18 @@ function M.buf_disable_bidi(bufnr)
   end
 end
 
+-- Paste contents piped through fribidi
+-- @tparam str|nil reg The register to paste from
+function M.paste(reg)
+  local buf = M.active_bufs[tostring(vim.api.nvim_win_get_buf(0))]
+  if buf ~= nil then
+    local bidi_reg = M.fribidi({ vim.fn.getreg(reg) }, buf.base_dir, {})
+    vim.api.nvim_paste(table.concat(bidi_reg, '\n'), {}, -1)
+  else
+    notify('ERROR', 'Bidi-Mode must be enabled to utilize Bidi-Paste')
+  end
+end
+
 -- Get Bidi-Mode status for buffer via <bufnr>
 -- @param int The buffer number
 -- NOTE: This is currently a function
