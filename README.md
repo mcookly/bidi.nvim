@@ -51,6 +51,28 @@ Bidi-Mode will activate using the default base direction.
 
 Use `:BidiDisable` to disable `Bidi-Mode`.
 
+### Paste bidi'd contents using `:BidiPaste`
+
+Paste in `Bidi-Mode` with `:BidiPaste`.
+For example,
+
+```vim
+" Paste from register `b`
+:BidiPaste b
+```
+
+You can also assign `:BidiPaste` to a keymap by using its lua function:
+
+```lua
+-- You can specify a buffer to use OR pass in `nil`,
+-- which will ask for a register.
+vim.keymap.set('n', '<leader>bp', function() require('bidi').paste(nil), {})
+```
+
+Sometimes content will be out of sync with the rest of the bidi'd buffer.
+To correct this,
+delete the contents to a register and paste using `:BidiPaste`.
+
 ### Statusline Indicator
 
 I highly recommend adding this to your statusline
@@ -80,8 +102,8 @@ more or less in the order I plan to add functionality.
 - [x] `Bidi-Mode` statusline option ([dcba4df](https://github.com/mcookly/bidi.nvim/commit/dcba4dfb430d04da0140cef4ccd391eab1e8c057))
 - [x] Manually choose base direction
 - [x] Save files only in logical mode
-- [ ] Switch to `revins` automatically
-- [ ] Paste in properly in `Bidi-Mode`
+- [x] Switch to `revins` automatically
+- [x] Paste in properly in `Bidi-Mode`
 - ~[ ] Dynamic padding for RTL paragraphs~ (see issue [#8](https://github.com/mcookly/bidi.nvim/issues/8))
 - [ ] Ability to use exclusively in `rightleft` mode
 - [ ] Extensive testing framework

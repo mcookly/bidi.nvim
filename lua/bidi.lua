@@ -212,6 +212,10 @@ end
 -- Paste contents piped through fribidi
 -- @tparam str|nil reg The register to paste from
 function M.paste(reg)
+  -- Wait for keypress if reg is `nil`
+  if reg == 'nil' or reg == nil then
+    reg = vim.fn.input('Bidi (INPUT): Enter a register: ')
+  end
   local buf = M.active_bufs[tostring(vim.api.nvim_win_get_buf(0))]
   if buf ~= nil then
     local bidi_reg = M.fribidi({ vim.fn.getreg(reg) }, buf.base_dir, {})
@@ -241,8 +245,9 @@ function M.setup(opts)
   -- Set user options
   M.options = vim.tbl_deep_extend('force', default_opts, opts or {})
 
-  -- Create autocommand group
+  -- Create autocommand group and namespace (for `vim.on_key`)
   M.augroup = vim.api.nvim_create_augroup('bidi.nvim', { clear = true })
+  M.namespace = vim.api.nvim_create_namespace('bidi.nvim')
 
   -- Generate user commands
   if M.options.create_user_commands then
