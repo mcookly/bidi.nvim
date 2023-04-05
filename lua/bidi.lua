@@ -101,6 +101,15 @@ function M.buf_enable_bidi(bufnr, base_dir)
         { desc = 'Disable Bidi-Mode in buffer ' .. bufnr }
       )
       table.insert(buf_status.usercmds, 'BidiDisable')
+
+      -- Paste contents using Bidi-Paste
+      vim.api.nvim_buf_create_user_command(bufnr, 'BidiPaste',
+        function(opts)
+          local reg = opts.fargs[1] or nil
+          M.paste(reg)
+        end,
+      { nargs = '?', desc = 'Paste bidi\'d contents in current buffer' })
+      table.insert(buf_status.usercmds, 'BidiPaste')
     end
 
     -- Auto commands
