@@ -18,7 +18,7 @@ M.active_bufs = {}
 -- Default plugin options
 local default_opts = {
   create_user_commands = true, -- Generate user commands to enable and disable bidi-mode
-  default_base_direction = 'ML', -- Options: 'LR', 'RL', 'ML', and 'MR'
+  default_base_direction = 'LR', -- Options: 'LR' and 'RL'
   intuitive_delete = true, -- Swap <DEL> and <BS> when using a keymap contra base direction
 }
 
@@ -50,11 +50,7 @@ function M.fribidi(lines, base_dir, args)
 
   -- Format base_dir
   local fmt_base_dir = ''
-  if base_dir:upper():match('ML') then
-    fmt_base_dir = 'wltr'
-  elseif base_dir:upper():match('MR') then
-    fmt_base_dir = 'wrtl'
-  elseif base_dir:upper():match('LR') then
+  if base_dir:upper():match('LR') then
     fmt_base_dir = 'ltr'
   elseif base_dir:upper():match('RL') then
     fmt_base_dir = 'rtl'
@@ -68,7 +64,7 @@ function M.fribidi(lines, base_dir, args)
   return vim.fn.systemlist(
     [[echo ']]
       .. lines
-      .. [[' | fribidi --nobreak]]
+      .. [[' | fribidi --nobreak --nopad]]
       .. ' --' .. fmt_base_dir
       .. ' --' .. fmt_args
     )

@@ -55,7 +55,7 @@ Use `:BidiDisable` to disable `Bidi-Mode`.
 
 I highly recommend adding this to your statusline
 so that you know when `Bidi-Mode` is enabled and in what base direction.
-It will display `LR` (LTR), `RL` (RTL), `ML` (weak LTR), or `MR` (weak RTL)
+It will display `LR` (LTR) or `RL` (RTL)
 depending on the base direction you choose.
 Add the following to your statusline:
 
@@ -82,7 +82,7 @@ more or less in the order I plan to add functionality.
 - [x] Save files only in logical mode
 - [ ] Switch to `revins` automatically
 - [ ] Paste in properly in `Bidi-Mode`
-- [ ] Dynamic padding for RTL paragraphs
+- ~[ ] Dynamic padding for RTL paragraphs~ (see issue [#8](https://github.com/mcookly/bidi.nvim/issues/8))
 - [ ] Ability to use exclusively in `rightleft` mode
 - [ ] Extensive testing framework
 
