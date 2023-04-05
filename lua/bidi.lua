@@ -226,12 +226,14 @@ function M.paste(reg)
 end
 
 -- Get Bidi-Mode status for buffer via <bufnr>
--- @param int The buffer number
+-- @tparam int bufnr The buffer number
+-- @tparam str pre_str String to attach before the base direction
+-- @tparam str post_str String to attach after the base direction
 -- NOTE: This is currently a function
 --       in case I implement more procedures down the road.
-function M.buf_get_bidi_mode(bufnr)
+function M.buf_get_bidi_mode(bufnr, pre_str, post_str)
   if M.active_bufs[tostring(bufnr)] ~= nil then
-    return M.active_bufs[tostring(bufnr)].base_dir
+    return pre_str .. M.active_bufs[tostring(bufnr)].base_dir .. post_str
   else
     return ''
   end
