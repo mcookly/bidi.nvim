@@ -180,6 +180,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
           if M.options.intuitive_delete and buf_status.intuitive_delete then
             vim.keymap.del('i', '<bs>', { buffer = bufnr })
             vim.keymap.del('i', '<del>', { buffer = bufnr })
+            buf_status.intuitive_delete = false
           end
         end
       end,
