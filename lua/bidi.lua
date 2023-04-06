@@ -153,7 +153,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
     buf_status.autocmds.revins = vim.api.nvim_create_autocmd('InsertEnter', {
       buffer = bufnr,
       callback = function()
-        if vim.tbl_contains(rtl_keymaps, vim.bo.keymap) then
+        if (base_dir:upper():match('RL') ~= nil) ~= (vim.tbl_contains(rtl_keymaps, vim.bo.keymap)) then
           -- NOTE: `revins` is a global option,
           -- so if a local option is wanted,
           -- might need to use `InsertCharPre` and check the buffer.
@@ -241,7 +241,8 @@ function M.paste(reg)
   end
   local buf = M.active_bufs[tostring(vim.api.nvim_win_get_buf(0))]
   if buf ~= nil then
-    local bidi_reg = M.fribidi({ vim.fn.getreg(reg) }, buf.base_dir, {})
+    local post_args = buf.base_dir:match('RL') and '| rev' or nil
+    local bidi_reg = M.fribidi({ vim.fn.getreg(reg) }, buf.base_dir, {}, post_args)
     vim.api.nvim_paste(table.concat(bidi_reg, '\n'), {}, -1)
   else
     notify('ERROR', 'Bidi-Mode must be enabled to utilize Bidi-Paste')
