@@ -35,18 +35,11 @@ end
 -- @tparam table Lines to run through FriBidi
 -- @string base_dir Base Direction for bidi'd content
 -- @tparam table args Extra arguments passed to fribidi
--- @tparam str post Extra commands after fribidi
+-- @tparam table post Extra commands after fribidi
 -- @treturn table Lines run through FriBidi
 function M.fribidi(lines, base_dir, args, post)
-  local post = post or ''
+  local post = post or {}
   local args = args or {}
-  -- Sanitize incoming lines
-  lines = vim.tbl_map(function(line)
-    return line:gsub([[']], [['\'']])
-  end, lines)
-
-  -- Append `\n` to the end of lines
-  lines = table.concat(lines, [[\n]])
 
   -- Format args
   local fmt_args = table.concat(args, ' --')
@@ -62,16 +55,16 @@ function M.fribidi(lines, base_dir, args, post)
     return
   end
 
-  -- Return content run through FriBidi
-  -- stylua: ignore
-  return vim.fn.systemlist(
-    [[echo ']]
-      .. lines
-      .. [[' | fribidi --nobreak --nopad]]
-      .. ' --' .. fmt_base_dir
-      .. ' --' .. fmt_args
-      .. ' ' .. post
-    )
+  local result = vim.fn.systemlist(
+    'fribidi --nobreak --nopad' .. ' --' .. fmt_base_dir .. ' --' .. fmt_args,
+    lines
+  )
+
+  if not vim.tbl_isempty(post) then
+    result = vim.fn.systemlist(post, result)
+  end
+
+  return result
 end
 
 -- Enable Bidi-Mode for buffer of id <bufnr>
@@ -85,7 +78,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
 
     -- Switch to `rightleft` and flip buffer in RL mode
     if base_dir:upper():match('RL') then
-      buf_lines = M.fribidi(buf_lines, base_dir, {}, '| rev')
+      buf_lines = M.fribidi(buf_lines, base_dir, {}, { 'rev' })
       vim.wo.rightleft = true
     else
       buf_lines = M.fribidi(buf_lines, base_dir, {})
@@ -206,7 +199,7 @@ function M.buf_disable_bidi(bufnr)
 
     -- Disable rightleft behavior
     if buf_bidi_state.base_dir:match('RL') then
-      buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {}, '| rev')
+      buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir, {}, { 'rev' })
       vim.wo.rightleft = false
     else
       buf_lines = M.fribidi(buf_lines, buf_bidi_state.base_dir)
