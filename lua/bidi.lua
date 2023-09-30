@@ -115,8 +115,9 @@ function M.buf_enable_bidi(bufnr, base_dir)
     end
 
     -- Auto commands
+    -- These don't need names as the ID is unique.
     -- Temporarily disable Bidi-Mode before writing buffer contents
-    buf_status.autocmds.disable_bidi_pre_write =
+    table.insert(buf_status.autocmds,
       vim.api.nvim_create_autocmd('BufWritePre', {
         buffer = bufnr,
         callback = function()
@@ -124,10 +125,10 @@ function M.buf_enable_bidi(bufnr, base_dir)
         end,
         group = M.augroup,
         desc = 'Disable Bidi-Mode before writing contents of buffer ' .. bufnr,
-      })
+      }))
 
     -- Re-enable Bidi-Mode after writing buffer contents
-    buf_status.autocmds.enable_bidi_post_write =
+    table.insert(buf_status.autocmds,
       vim.api.nvim_create_autocmd('BufWritePost', {
         buffer = bufnr,
         callback = function()
@@ -135,12 +136,12 @@ function M.buf_enable_bidi(bufnr, base_dir)
         end,
         group = M.augroup,
         desc = 'Enable Bidi-Mode before writing contents of buffer ' .. bufnr,
-      })
+      }))
 
     -- Automatically enter `revins` depending on language and `rightleft`
     -- For `rightleft` buffers, LTR languages are `revins`.
     -- For `norightleft` buffers, RTL languages are `revins`.
-    buf_status.autocmds.revins = vim.api.nvim_create_autocmd('InsertEnter', {
+    table.insert(buf_status.autocmds, vim.api.nvim_create_autocmd('InsertEnter', {
       buffer = bufnr,
       callback = function()
         if
@@ -179,7 +180,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
       end,
       group = M.augroup,
       desc = 'Automatically enter `revins` depending on language and `rightleft`',
-    })
+    }))
 
     M.active_bufs[tostring(bufnr)] = buf_status
   else
