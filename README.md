@@ -108,8 +108,6 @@ vim.o.statusline = [[%!luaeval('require("bidi").buf_get_bidi_mode(vim.api.nvim_w
 
 ## Roadmap
 
-I plan to work extensively on `bidi.nvim` this summer,
-but feel free to suggest features or mention concerns before then.
 Below is a simple roadmap,
 more or less in the order I plan to add functionality.
 
