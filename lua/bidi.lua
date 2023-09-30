@@ -83,7 +83,6 @@ function M.buf_enable_bidi(bufnr, base_dir)
   if M.active_bufs[tostring(bufnr)] == nil then
     local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
-
     -- Switch to `rightleft` and flip buffer in RL mode
     if base_dir:upper():match('RL') then
       buf_lines = M.fribidi(buf_lines, base_dir, {}, '| rev')
@@ -106,46 +105,44 @@ function M.buf_enable_bidi(bufnr, base_dir)
     -- User Commands
     if M.options.create_user_commands then
       -- Disable Bidi-Mode in current buffer
-      vim.api.nvim_buf_create_user_command(
-        bufnr,
-        'BidiDisable',
-        function()
-          M.buf_disable_bidi(0)
-        end,
-        { desc = 'Disable Bidi-Mode in buffer ' .. bufnr }
-      )
+      vim.api.nvim_buf_create_user_command(bufnr, 'BidiDisable', function()
+        M.buf_disable_bidi(0)
+      end, { desc = 'Disable Bidi-Mode in buffer ' .. bufnr })
       table.insert(buf_status.usercmds, 'BidiDisable')
 
       -- Paste contents using Bidi-Paste
-      vim.api.nvim_buf_create_user_command(bufnr, 'BidiPaste',
-        function(opts)
-          local reg = opts.fargs[1] or nil
-          M.paste(reg)
-        end,
-      { nargs = '?', desc = 'Paste bidi\'d contents in current buffer' })
+      vim.api.nvim_buf_create_user_command(bufnr, 'BidiPaste', function(opts)
+        local reg = opts.fargs[1] or nil
+        M.paste(reg)
+      end, {
+        nargs = '?',
+        desc = "Paste bidi'd contents in current buffer",
+      })
       table.insert(buf_status.usercmds, 'BidiPaste')
     end
 
     -- Auto commands
     -- Temporarily disable Bidi-Mode before writing buffer contents
-    buf_status.autocmds.disable_bidi_pre_write = vim.api.nvim_create_autocmd('BufWritePre', {
-      buffer = bufnr,
-      callback = function()
-        M.buf_disable_bidi(bufnr)
-      end,
-      group = M.augroup,
-      desc = 'Disable Bidi-Mode before writing contents of buffer ' .. bufnr,
-    })
+    buf_status.autocmds.disable_bidi_pre_write =
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        buffer = bufnr,
+        callback = function()
+          M.buf_disable_bidi(bufnr)
+        end,
+        group = M.augroup,
+        desc = 'Disable Bidi-Mode before writing contents of buffer ' .. bufnr,
+      })
 
     -- Re-enable Bidi-Mode after writing buffer contents
-    buf_status.autocmds.enable_bidi_post_write = vim.api.nvim_create_autocmd('BufWritePost', {
-      buffer = bufnr,
-      callback = function()
-        M.buf_enable_bidi(bufnr, base_dir)
-      end,
-      group = M.augroup,
-      desc = 'Enable Bidi-Mode before writing contents of buffer ' .. bufnr,
-    })
+    buf_status.autocmds.enable_bidi_post_write =
+      vim.api.nvim_create_autocmd('BufWritePost', {
+        buffer = bufnr,
+        callback = function()
+          M.buf_enable_bidi(bufnr, base_dir)
+        end,
+        group = M.augroup,
+        desc = 'Enable Bidi-Mode before writing contents of buffer ' .. bufnr,
+      })
 
     -- Automatically enter `revins` depending on language and `rightleft`
     -- For `rightleft` buffers, LTR languages are `revins`.
@@ -153,7 +150,10 @@ function M.buf_enable_bidi(bufnr, base_dir)
     buf_status.autocmds.revins = vim.api.nvim_create_autocmd('InsertEnter', {
       buffer = bufnr,
       callback = function()
-        if (base_dir:upper():match('RL') ~= nil) ~= (vim.tbl_contains(rtl_keymaps, vim.bo.keymap)) then
+        if
+          (base_dir:upper():match('RL') ~= nil)
+          ~= (vim.tbl_contains(rtl_keymaps, vim.bo.keymap))
+        then
           -- NOTE: `revins` is a global option,
           -- so if a local option is wanted,
           -- might need to use `InsertCharPre` and check the buffer.
@@ -243,7 +243,12 @@ function M.paste(reg)
   local buf = M.active_bufs[tostring(vim.api.nvim_win_get_buf(0))]
   if buf ~= nil then
     local post_args = buf.base_dir:match('RL') and '| rev' or nil
-    local bidi_reg = M.fribidi({ vim.fn.getreg(reg) }, buf.base_dir, {}, post_args)
+    local bidi_reg = M.fribidi(
+      { vim.fn.getreg(reg) },
+      buf.base_dir,
+      {},
+      post_args
+    )
     vim.api.nvim_paste(table.concat(bidi_reg, '\n'), {}, -1)
   else
     notify('ERROR', 'Bidi-Mode must be enabled to utilize Bidi-Paste')
