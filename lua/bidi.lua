@@ -116,6 +116,7 @@ function M.buf_enable_bidi(bufnr, base_dir)
 
     -- Auto commands
     -- These don't need names as the ID is unique.
+
     -- Temporarily disable Bidi-Mode before writing buffer contents
     table.insert(buf_status.autocmds,
       vim.api.nvim_create_autocmd('BufWritePre', {
@@ -218,6 +219,14 @@ function M.buf_disable_bidi(bufnr)
 
     for _, autocmd in ipairs(buf_bidi_state.autocmds) do
       vim.api.nvim_del_autocmd(autocmd)
+    end
+
+    -- Disable `revins` etc. if still enabled
+    vim.o.revins = false
+
+    if M.options.intuitive_delete and buf_bidi_state.intuitive_delete then
+      vim.keymap.del('i', '<bs>', { buffer = bufnr })
+      vim.keymap.del('i', '<del>', { buffer = bufnr })
     end
 
     M.active_bufs[tostring(bufnr)] = nil
