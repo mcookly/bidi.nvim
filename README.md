@@ -7,9 +7,12 @@ Bidirectional (bidi) text support in neovim.
 `bidi.nvim` aims to be a simple, easy-to-configure, and lightweight
 plugin which adds a bidirectional display mode to neovim
 on a per-buffer basis.
-**Currently, this is in early development.
-I recommend using [`rosetta.nvim`](https://github.com/mcookly/rosetta.nvim)
-in the meantime.**
+
+**NOTE:
+I no longer use neovim,
+so I won't be adding any extra features to this plugin
+unless someone else (you?) puts in the work.
+I will try my best to fix bugs and other issues, however.**
 
 ## Dependencies
 
@@ -31,7 +34,20 @@ in the meantime.**
   I recommend [Cousine](https://fonts.google.com/specimen/Cousine)
   or [GNU FreeMono](https://www.gnu.org/software/freefont/).
 
+## Configuration
+
+```lua
+-- Default plugin options
+local default_opts = {
+  create_user_commands = true, -- Generate user commands to enable and disable bidi-mode
+  default_base_direction = 'LR', -- Options: 'LR' and 'RL'
+  intuitive_delete = true, -- Swap <DEL> and <BS> when using a keymap contra base direction
+}
+```
+
 ## Usage
+
+**I would recommend backing up important documents beforehand.**
 
 ### Toggle `Bidi-Mode`
 
@@ -97,16 +113,16 @@ but feel free to suggest features or mention concerns before then.
 Below is a simple roadmap,
 more or less in the order I plan to add functionality.
 
-- [x] GNU FriBidi piping ([0c5861a](https://github.com/mcookly/bidi.nvim/commit/0c5861ace3e6e807c5ce8300f63572d50318c154))
-- [x] `Bidi-Mode` toggleability ([331de66](https://github.com/mcookly/bidi.nvim/commit/331de66c19937c85c7f704b5f7e836a4d356d0ca))
-- [x] `Bidi-Mode` statusline option ([dcba4df](https://github.com/mcookly/bidi.nvim/commit/dcba4dfb430d04da0140cef4ccd391eab1e8c057))
-- [x] Manually choose base direction
-- [x] Save files only in logical mode
-- [x] Switch to `revins` automatically
-- [x] Paste in properly in `Bidi-Mode`
-- ~[ ] Dynamic padding for RTL paragraphs~ (see issue [#8](https://github.com/mcookly/bidi.nvim/issues/8))
-- [ ] Ability to use exclusively in `rightleft` mode
-- [ ] Extensive testing framework
+- :white_check_mark: GNU FriBidi piping ([0c5861a](https://github.com/mcookly/bidi.nvim/commit/0c5861ace3e6e807c5ce8300f63572d50318c154))
+- :white_check_mark: `Bidi-Mode` toggleability ([331de66](https://github.com/mcookly/bidi.nvim/commit/331de66c19937c85c7f704b5f7e836a4d356d0ca))
+- :white_check_mark: `Bidi-Mode` statusline option ([dcba4df](https://github.com/mcookly/bidi.nvim/commit/dcba4dfb430d04da0140cef4ccd391eab1e8c057))
+- :white_check_mark: Manually choose base direction ([5b16429](https://github.com/mcookly/bidi.nvim/commit/5b16429101d09a8f5e3bfb4da8e6ca67672a4ec3))
+- :white_check_mark: Save files only in logical mode ([85b77d2](https://github.com/mcookly/bidi.nvim/commit/85b77d2293e6d30f3f3462489d47c3dfa7c868a3))
+- :white_check_mark: Switch to `revins` automatically ([83ca8a8](https://github.com/mcookly/bidi.nvim/commit/83ca8a8de1995fa70413b5e771f9decc5e4054b7))
+- :white_check_mark: Paste in properly in `Bidi-Mode` ([8fc5741](https://github.com/mcookly/bidi.nvim/commit/8fc5741f3015f2e7d9510426e52273044223afe0))
+- :x: ~Dynamic padding for RTL paragraphs~ (see issue [#8](https://github.com/mcookly/bidi.nvim/issues/8))
+- :white_check_mark: Ability to use exclusively in `rightleft` mode ([5b16429](https://github.com/mcookly/bidi.nvim/commit/5b16429101d09a8f5e3bfb4da8e6ca67672a4ec3))
+- :x: ~Extensive testing framework~
 
 ### Testing
 
