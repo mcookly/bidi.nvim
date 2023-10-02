@@ -45,6 +45,21 @@ local default_opts = {
 }
 ```
 
+## Installation
+
+Use any standard neovim-compatible plugin manager.
+Then add somewhere in your `init.lua`:
+
+```lua
+-- Either
+require("bidi").setup()
+
+-- Or (if you want to customize options)
+require("bidi").setup({
+  create_user_commands = false,
+})
+```
+
 ## Usage
 
 **I would recommend backing up important documents beforehand.**
