@@ -10,9 +10,10 @@ on a per-buffer basis.
 
 **NOTE:
 I no longer use neovim,
-so I won't be adding any extra features to this plugin
-unless someone else (you?) puts in the work.
-I will try my best to fix bugs and other issues, however.**
+so I won't be adding any extra features to this plugin.
+But if you would like to take over the project,
+by all means fork this repo,
+and I can update this readme to point to it.**
 
 ## Dependencies
 
