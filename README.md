@@ -63,7 +63,8 @@ require("bidi").setup({
 
 ## Usage
 
-**I would recommend backing up important documents beforehand.**
+> [!WARNING]
+> This plugin replaces the canonical Unicode codepoints for Arabic-script characters with their presentation forms when enabled. This can affect functionality such as searching and sorting. The codepoints are converted back when the plugin is disabled, but the round-trip may be lossy. Furthermore, Unicode bidi control characters may be lost during the conversion in either direction. **I would recommend backing up important documents beforehand.** See [Issue#13](https://github.com/mcookly/bidi.nvim/issues/13) for more information.
 
 ### Toggle `Bidi-Mode`
 
