@@ -8,12 +8,8 @@ Bidirectional (bidi) text support in neovim.
 plugin which adds a bidirectional display mode to neovim
 on a per-buffer basis.
 
-**NOTE:
-I no longer use neovim,
-so I won't be adding any extra features to this plugin.
-But if you would like to take over the project,
-by all means fork this repo,
-and I can update this readme to point to it.**
+> [!NOTE]
+> I no longer use neovim, so I won't be adding any extra features to this plugin. You may want to use [a more reliable bidi plugin](https://github.com/dlyongemallo/bidi-scope.nvim) by @dlyongemallo.
 
 ## Dependencies
 
